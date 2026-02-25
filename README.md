@@ -365,3 +365,277 @@ This is expected behavior.
 
 ```
 
+Below is a **ready-to-paste section** you can add to your existing GitHub `README.md`.
+
+Just place this under your **Common Issues** section.
+
+---
+
+```markdown
+## Common MongoDB Problems and Fixes
+
+During development and testing, the following MongoDB-related issues are commonly encountered.
+
+---
+
+### 1. `ServerSelectionTimeoutError`
+
+Example error:
+
+```
+
+pymongo.errors.ServerSelectionTimeoutError
+
+```
+
+**Cause**
+
+MongoDB server is not running.
+
+**Fix**
+
+Open a new terminal and start MongoDB:
+
+```
+
+mongod
+
+```
+
+Leave this terminal running while the backend API is running.
+
+---
+
+### 2. Connection refused (ECONNREFUSED / WinError 10061)
+
+Example:
+
+```
+
+Connection refused
+
+```
+
+or
+
+```
+
+WinError 10061
+
+```
+
+**Cause**
+
+MongoDB is not running or is running on a different port.
+
+**Fix**
+
+Start MongoDB using:
+
+```
+
+mongod
+
+```
+
+Make sure it is listening on the default port:
+
+```
+
+27017
+
+```
+
+---
+
+### 3. Wrong MongoDB URI
+
+The project uses the following default URI in `db.py`:
+
+```
+
+mongodb://localhost:27017
+
+````
+
+If your MongoDB server is running on a different host or port, update:
+
+```python
+MONGO_URI = "mongodb://localhost:27017"
+````
+
+accordingly.
+
+---
+
+### 4. MongoDB service not running (Windows service install)
+
+On some systems MongoDB is installed as a Windows service.
+
+If `mongod` does not start, open **Services** and make sure:
+
+```
+MongoDB Server
+```
+
+is running.
+
+You can also start it manually from Services.
+
+---
+
+### 5. MongoDB data directory permission error
+
+Sometimes MongoDB fails to start with errors related to the data directory.
+
+Example:
+
+```
+Data directory ... not found or not accessible
+```
+
+**Fix**
+
+Create the data directory manually (only if required by your installation):
+
+```
+C:\data\db
+```
+
+Then start MongoDB again:
+
+```
+mongod
+```
+
+---
+
+### 6. Authentication failed
+
+If you see an error similar to:
+
+```
+Authentication failed
+```
+
+**Cause**
+
+Your MongoDB server is running with authentication enabled.
+
+**Fix**
+
+Update the connection string in `db.py` to include username and password:
+
+```python
+mongodb://username:password@localhost:27017
+```
+
+(If you are using a local default installation, authentication is usually not enabled.)
+
+---
+
+### 7. Database or collection not visible in MongoDB Compass
+
+This is normal behavior.
+
+The database and collection:
+
+* `person_finder`
+* `results`
+
+are created only after the first successful insert.
+
+**Fix**
+
+Run at least one successful search from the UI or API, then refresh MongoDB Compass.
+
+---
+
+### 8. Firewall or antivirus blocking MongoDB
+
+In some environments, local firewall or antivirus software blocks port `27017`.
+
+**Fix**
+
+Allow inbound connections for:
+
+```
+mongod.exe
+```
+
+or allow port:
+
+```
+27017
+```
+
+in the firewall settings.
+
+---
+
+### 9. Verifying MongoDB connectivity quickly
+
+You can verify that MongoDB is reachable by running the backend and checking that
+no error appears when this line is executed:
+
+```python
+from pymongo import MongoClient
+```
+
+If the backend starts without MongoDB-related errors and successfully inserts results,
+the connection is working correctly.
+
+```
+```
+
+
+### About inbound connections (Windows Firewall)
+
+MongoDB runs as a local server process (`mongod.exe`) and listens for connections on the default port:
+
+```
+
+27017
+
+```
+
+When the FastAPI backend connects to MongoDB, it is treated by Windows as an **inbound connection to MongoDB**.
+
+If Windows Firewall or antivirus software blocks inbound connections for `mongod.exe`, the backend will fail to connect and may raise errors such as:
+
+```
+
+ServerSelectionTimeoutError
+
+```
+
+or
+
+```
+
+Connection refused
+
+```
+
+To fix this, allow inbound connections for the MongoDB server executable:
+
+```
+
+mongod.exe
+
+```
+
+(or allow inbound traffic on port `27017`) in Windows Defender Firewall.
+
+This project only connects to:
+
+```
+
+mongodb://localhost:27017
+
+```
+
+so allowing inbound connections only enables local communication between the backend API and the MongoDB server on the same machine.
+It does not expose MongoDB to the public internet.
+
+
