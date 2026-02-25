@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Valid Person Finder</title>
+</head>
+<body>
+
+<h2>Valid Person Finder</h2>
+
+<form id="form">
+    <input type="text" id="company" placeholder="Company name" required />
+    <input type="text" id="designation" placeholder="Designation (e.g. CEO)" required />
+    <button type="submit">Search</button>
+</form>
+
+<pre id="output"></pre>
+
+<script>
+document.getElementById("form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const company = document.getElementById("company").value;
+    const designation = document.getElementById("designation").value;
+
+    const res = await fetch("http://127.0.0.1:8000/find-person", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ company, designation })
+    });
+
+    const data = await res.json();
+    document.getElementById("output").textContent =
+        JSON.stringify(data, null, 2);
+});
+</script>
+
+</body>
+</html>
